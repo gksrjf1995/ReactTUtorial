@@ -1,5 +1,5 @@
-const Header = ({title}) => {
-    
+const Header = ({ title }) => {
+
     return (
         <header>
             <h1>{title}</h1>
@@ -8,7 +8,7 @@ const Header = ({title}) => {
 }
 
 Header.defaultProps = {
-    title : "Default Props"
+    title: "Default Title"
 }
 
 export default Header;

@@ -1,18 +1,17 @@
-import ItemList from "./ItemList.js"
+import ItemList from './ItemList';
 
-const Content = ({items , setitems , deleteinput , changeinput}) => {
-    
-
-  
+const Content = ({ items, handleCheck, handleDelete }) => {
     return (
-        <main className="sibal">
-            {items.length ?  <ItemList items={items} setitems={setitems} deleteinput={deleteinput} changeinput={changeinput} /> 
-            : <p>ddd</p>} 
-          
-                
-                
-            
-            
+        <main>
+            {items.length ? (
+                <ItemList
+                    items={items}
+                    handleCheck={handleCheck}
+                    handleDelete={handleDelete}
+                />
+            ) : (
+                <p style={{ marginTop: '2rem' }}>Your list is empty.</p>
+            )}
         </main>
     )
 }

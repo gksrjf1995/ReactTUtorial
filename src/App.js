@@ -1,50 +1,61 @@
 import Header from './Header';
+import SearchItem from './SearchItem';
+import AddItem from './AddItem';
 import Content from './Content';
 import Footer from './Footer';
-import { useState } from 'react';
-import AddLiseitem from "./AddLiseitem.js"
-import SearchItem from './SearchItem';
+import { useState, useEffect } from 'react';
 
 function App() {
-  const [items , setitems] = useState(JSON.parse(localStorage.getItem("items")));
-  const [newitem , setnewitem] = useState('')
-  const [serachitem , setseratchitem] = useState("");
+  const [items, setItems] = useState(JSON.parse(localStorage.getItem('shoppinglist')) || []);
+  const [newItem, setNewItem] = useState('')
+  const [search, setSearch] = useState('')
 
-  
+  useEffect(() => {
+    localStorage.setItem('shoppinglist', JSON.stringify(items));
+  }, [items])
 
-  const changeinput = (id) => {
-    console.log(id)
-    const result = items.map((items)=>{
-      return  items.id === id ? {...items , checked : !items.checked} :  items
-    });
-    setitems(result);
-    localStorage.setItem('items',JSON.stringify(items));
+  const addItem = (item) => {
+    const id = items.length ? items[items.length - 1].id + 1 : 1;
+    const myNewItem = { id, checked: false, item };
+    const listItems = [...items, myNewItem];
+    setItems(listItems);
   }
- 
-  const handelsubmit = (e) => {
+
+  const handleCheck = (id) => {
+    const listItems = items.map((item) => item.id === id ? { ...item, checked: !item.checked } : item);
+    setItems(listItems);
+  }
+
+  const handleDelete = (id) => {
+    const listItems = items.filter((item) => item.id !== id);
+    setItems(listItems);
+  }
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("제출");
-    if(!newitem) return 
-    setitems([...items , {id:items.length+1 ,checked:false , item:newitem }]);
-    localStorage.setItem('items',JSON.stringify(items));
-    setnewitem('')
-  }
-
-  const deleteinput = (id) => {
-    const result = items.filter((items)=>{
-        return items.id !== id 
-    });
-    setitems(result);
-    localStorage.setItem('items',JSON.stringify(items));
+    if (!newItem) return;
+    addItem(newItem);
+    setNewItem('');
   }
 
   return (
     <div className="App">
-      <Header />
-      <SearchItem serachitem={serachitem} setseratchitem={setseratchitem} setitems={setitems} items={items}/>
-      <AddLiseitem handelsubmit={handelsubmit} newitem={newitem} setnewitem={setnewitem}/>
-      <Content items={items.filter((item)=>{return item.item.toLowerCase().includes(serachitem.toLocaleLowerCase())})} setitems={setitems} changeinput={changeinput} deleteinput={deleteinput}/>
-      <Footer legnth={items.length}/>
+      <Header title="Grocery List" />
+      <AddItem
+        newItem={newItem}
+        setNewItem={setNewItem}
+        handleSubmit={handleSubmit}
+      />
+      <SearchItem
+        search={search}
+        setSearch={setSearch}
+      />
+      <Content
+        items={items.filter(item => ((item.item).toLowerCase()).includes(search.toLowerCase()))}
+        handleCheck={handleCheck}
+        handleDelete={handleDelete}
+      />
+      <Footer length={items.length} />
     </div>
   );
 }

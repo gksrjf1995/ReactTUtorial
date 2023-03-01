@@ -1,15 +1,18 @@
-import React from 'react'
-import Lineitem from "./Lineitem.js"
+import LineItem from './LineItem';
 
-
-
-const ItemList = ({items , setitems , deleteinput , changeinput}) => {
-  return (
-    <ul>{items.map((items,index)=>{
-        return <Lineitem key={index} index={index} items={items} setitems={setitems} changeinput={changeinput} deleteinput={deleteinput}/>
-        })}
-    </ul>
-  )
+const ItemList = ({ items, handleCheck, handleDelete }) => {
+    return (
+        <ul>
+            {items.map((item) => (
+                <LineItem
+                    key={item.id}
+                    item={item}
+                    handleCheck={handleCheck}
+                    handleDelete={handleDelete}
+                />
+            ))}
+        </ul>
+    )
 }
 
 export default ItemList
