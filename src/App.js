@@ -3,16 +3,41 @@ import SearchItem from './SearchItem';
 import AddItem from './AddItem';
 import Content from './Content';
 import Footer from './Footer';
+import TestuseEffect from "./TestuseEffect"
 import { useState, useEffect } from 'react';
+import axios from "axios"
 
 function App() {
-  const [items, setItems] = useState(JSON.parse(localStorage.getItem('shoppinglist')) || []);
+  const API_URL = "http://localhost:3500/items"
+  const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState('')
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState('');
+  const [fetcherror , setfetcherror] = useState();
+  const [loading , setloading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem('shoppinglist', JSON.stringify(items));
-  }, [items])
+    const fetchdata = async() => {
+      
+      try{
+        const result = await axios.get(API_URL).then((res)=>res);
+        console.log(result)
+        if(result.status !== 200 ){
+          setItems([]);
+        }
+        setItems(result.data)
+        
+        console.log(newItem)
+      }catch(err){
+        err.message = "서버 주소 잘못되었습니다"
+        setfetcherror(err.message);
+      }finally {
+        setloading(false)
+      }
+    } 
+    fetchdata();
+   
+  }, []);
+ 
 
   const addItem = (item) => {
     const id = items.length ? items[items.length - 1].id + 1 : 1;
@@ -50,12 +75,19 @@ function App() {
         search={search}
         setSearch={setSearch}
       />
-      <Content
-        items={items.filter(item => ((item.item).toLowerCase()).includes(search.toLowerCase()))}
-        handleCheck={handleCheck}
-        handleDelete={handleDelete}
-      />
+      <main>
+        {loading && <p style={{color : "red"}}>데이터 받아 오는 중</p>}
+        {fetcherror && <p style={{color : "red"}}>{fetcherror}</p>}
+        {!fetcherror && !loading && <Content
+          items={items.filter(item => ((item.item).toLowerCase()).includes(search.toLowerCase()))}
+          handleCheck={handleCheck}
+          handleDelete={handleDelete}
+        />}
+       
+      </main>
+    
       <Footer length={items.length} />
+      <TestuseEffect/>
     </div>
   );
 }
