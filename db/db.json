@@ -1,9 +1,0 @@
-{
-    "items" : [
-        {"id":1,"checked":false,"item":"one"},
-        {"id":2,"checked":false,"item":"two"},
-        {"id":3,"checked":false,"item":"three"},
-        {"id":4,"checked":false,"item":"four"}
-       
-    ]
-}

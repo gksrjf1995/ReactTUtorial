@@ -3,57 +3,80 @@ import SearchItem from './SearchItem';
 import AddItem from './AddItem';
 import Content from './Content';
 import Footer from './Footer';
-import TestuseEffect from "./TestuseEffect"
 import { useState, useEffect } from 'react';
-import axios from "axios"
+import apiRequest from './apiRequest';
 
 function App() {
-  const API_URL = "http://localhost:3500/items"
+  const API_URL = 'http://localhost:3500/items';
+
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState('')
+  const [newItem, setNewItem] = useState('');
   const [search, setSearch] = useState('');
-  const [fetcherror , setfetcherror] = useState();
-  const [loading , setloading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchdata = async() => {
-      
-      try{
-        const result = await axios.get(API_URL).then((res)=>res);
-        console.log(result)
-        if(result.status !== 200 ){
-          setItems([]);
-        }
-        setItems(result.data)
-        
-        console.log(newItem)
-      }catch(err){
-        err.message = "서버 주소 잘못되었습니다"
-        setfetcherror(err.message);
-      }finally {
-        setloading(false)
-      }
-    } 
-    fetchdata();
-   
-  }, []);
- 
 
-  const addItem = (item) => {
+    const fetchItems = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw Error('Did not receive expected data');
+        const listItems = await response.json();
+        setItems(listItems);
+        setFetchError(null);
+      } catch (err) {
+        setFetchError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    setTimeout(() => fetchItems(), 2000);
+
+  }, [])
+
+  const addItem = async (item) => {
     const id = items.length ? items[items.length - 1].id + 1 : 1;
     const myNewItem = { id, checked: false, item };
     const listItems = [...items, myNewItem];
     setItems(listItems);
+
+    const postOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(myNewItem)
+    }
+    await apiRequest(API_URL, postOptions);
+   
   }
 
-  const handleCheck = (id) => {
+  const handleCheck = async (id) => {
     const listItems = items.map((item) => item.id === id ? { ...item, checked: !item.checked } : item);
     setItems(listItems);
+
+    const myItem = listItems.filter((item) => item.id === id);
+    const updateOptions = {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ checked: myItem[0].checked })
+    };
+    const reqUrl = `${API_URL}/${id}`;
+    const result = await apiRequest(reqUrl, updateOptions);
+    if (result) setFetchError(result);
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const listItems = items.filter((item) => item.id !== id);
     setItems(listItems);
+
+    const deleteOptions = { method: 'DELETE' };
+    const reqUrl = `${API_URL}/${id}`;
+    const result = await apiRequest(reqUrl, deleteOptions);
+    if (result) setFetchError(result);
   }
 
   const handleSubmit = (e) => {
@@ -76,18 +99,15 @@ function App() {
         setSearch={setSearch}
       />
       <main>
-        {loading && <p style={{color : "red"}}>데이터 받아 오는 중</p>}
-        {fetcherror && <p style={{color : "red"}}>{fetcherror}</p>}
-        {!fetcherror && !loading && <Content
+        {isLoading && <p>Loading Items...</p>}
+        {fetchError && <p style={{ color: "red" }}>{`Error: ${fetchError}`}</p>}
+        {!fetchError && !isLoading && <Content
           items={items.filter(item => ((item.item).toLowerCase()).includes(search.toLowerCase()))}
           handleCheck={handleCheck}
           handleDelete={handleDelete}
         />}
-       
       </main>
-    
       <Footer length={items.length} />
-      <TestuseEffect/>
     </div>
   );
 }

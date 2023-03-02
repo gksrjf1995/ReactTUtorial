@@ -8,7 +8,7 @@ const Header = ({ title }) => {
 }
 
 Header.defaultProps = {
-    title : "Default Propsddd"
+    title: "Default Title"
 }
 
 export default Header;
