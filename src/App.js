@@ -1,113 +1,58 @@
-import Header from './Header';
-import SearchItem from './SearchItem';
-import AddItem from './AddItem';
-import Content from './Content';
-import Footer from './Footer';
-import { useState, useEffect } from 'react';
-import apiRequest from './apiRequest';
+import Header from "./Header";
+import Nav from "./Nav"
+import Footer from "./Footer";
+import Newpost from "./Newpost";
+import About from "./About";
+import Missing from "./Missing";
+import Postpage from "./Postpage";
+import Home from "./Home"
+import { Route, Routes } from "react-router-dom"
+import { useState } from "react";
+
 
 function App() {
-  const API_URL = 'http://localhost:3500/items';
-
-  const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState('');
-  const [search, setSearch] = useState('');
-  const [fetchError, setFetchError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-
-    const fetchItems = async () => {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw Error('Did not receive expected data');
-        const listItems = await response.json();
-        setItems(listItems);
-        setFetchError(null);
-      } catch (err) {
-        setFetchError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
+  
+  const [search , setSearch] = useState('');
+  const [searchResults , setSearchResults] = useState([]);
+  const [post , setPost] = useState([
+    {
+      id: 1,
+      title: "My First Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
+    },
+    {
+      id: 2,
+      title: "My 2nd Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
+    },
+    {
+      id: 3,
+      title: "My 3rd Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
+    },
+    {
+      id: 4,
+      title: "My Fourth Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
     }
-
-    setTimeout(() => fetchItems(), 2000);
-
-  }, [])
-
-  const addItem = async (item) => {
-    const id = items.length ? items[items.length - 1].id + 1 : 1;
-    const myNewItem = { id, checked: false, item };
-    const listItems = [...items, myNewItem];
-    setItems(listItems);
-
-    const postOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(myNewItem)
-    }
-    await apiRequest(API_URL, postOptions);
-   
-  }
-
-  const handleCheck = async (id) => {
-    const listItems = items.map((item) => item.id === id ? { ...item, checked: !item.checked } : item);
-    setItems(listItems);
-
-    const myItem = listItems.filter((item) => item.id === id);
-    const updateOptions = {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ checked: myItem[0].checked })
-    };
-    const reqUrl = `${API_URL}/${id}`;
-    const result = await apiRequest(reqUrl, updateOptions);
-    if (result) setFetchError(result);
-  }
-
-  const handleDelete = async (id) => {
-    const listItems = items.filter((item) => item.id !== id);
-    setItems(listItems);
-
-    const deleteOptions = { method: 'DELETE' };
-    const reqUrl = `${API_URL}/${id}`;
-    const result = await apiRequest(reqUrl, deleteOptions);
-    if (result) setFetchError(result);
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!newItem) return;
-    addItem(newItem);
-    setNewItem('');
-  }
+  ])
 
   return (
     <div className="App">
-      <Header title="Grocery List" />
-      <AddItem
-        newItem={newItem}
-        setNewItem={setNewItem}
-        handleSubmit={handleSubmit}
-      />
-      <SearchItem
-        search={search}
-        setSearch={setSearch}
-      />
-      <main>
-        {isLoading && <p>Loading Items...</p>}
-        {fetchError && <p style={{ color: "red" }}>{`Error: ${fetchError}`}</p>}
-        {!fetchError && !isLoading && <Content
-          items={items.filter(item => ((item.item).toLowerCase()).includes(search.toLowerCase()))}
-          handleCheck={handleCheck}
-          handleDelete={handleDelete}
-        />}
-      </main>
-      <Footer length={items.length} />
+      <Header title={"React Js Blog"}/>
+      <Nav search={search} setSearch={setSearch}/>
+     <Routes>
+      <Route path="/" element={<Home post={post}/>}/>
+      <Route path="/about" element={<About/>}/>
+      <Route path="/newpost" element={<Newpost/>}/>
+      <Route path="/post/:id" element={<Postpage post={post}/>}/>
+      <Route path="*" element={<Missing/>}/>
+     </Routes>
+     <Footer/>
     </div>
   );
 }
