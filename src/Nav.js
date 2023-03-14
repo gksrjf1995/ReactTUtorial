@@ -10,8 +10,8 @@ const Nav = ({search , setSearch}) => {
       </form>
       <ul>
         <li><Link to="/">Home</Link></li>
-        <li><Link to="/about">Home</Link></li>
-        <li><Link to="/post">Home</Link></li>
+        <li><Link to="/newpost">Post</Link></li>
+        <li><Link to="/about">About</Link></li>
       </ul>
     </nav>
   )

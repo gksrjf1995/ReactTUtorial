@@ -14,7 +14,7 @@ const Postpage = ({ post , handleDelete}) => {
           <p className='postDate'>{data?.datatime || "없음"}</p>
           <p className='postBody'>{data?.body || "없음"}</p>
           {data === undefined ? <p><Link to="/">Back to Home</Link></p> : ""}
-          <button onClick={e=>handleDelete(data.id)}>Delete post</button>
+          {data?.datatime && <button onClick={e=>handleDelete(data.id)}>Delete post</button>}
         </> 
         }
       

@@ -9,8 +9,7 @@ const Post = ({post}) => {
             <p className='postDate'>{post.datetime}</p>
         </Link>
         <p className='postBody'>
-            {/* {post.body <= 25 ? post.body : `${post.body.slice(0,25)}...` }  */}
-            {post.body}
+            {post.body <= 25 ? post.body : `${post.body.slice(0,25)}...` } 
         </p>
     </article>
   )

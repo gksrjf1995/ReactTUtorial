@@ -6,50 +6,66 @@ import About from "./About";
 import Missing from "./Missing";
 import Postpage from "./Postpage";
 import Home from "./Home"
-import { Route, Routes } from "react-router-dom"
-import { useState } from "react";
-
+import { Route, Routes , useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { compareAsc, format } from 'date-fns'
+import api from "./api/posts";
 
 function App() {
   
+  const history = useNavigate();
   const [search , setSearch] = useState('');
   const [searchResults , setSearchResults] = useState([]);
-  const [post , setPost] = useState([
-    {
-      id: 1,
-      title: "My First Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
-    },
-    {
-      id: 2,
-      title: "My 2nd Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
-    },
-    {
-      id: 3,
-      title: "My 3rd Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
-    },
-    {
-      id: 4,
-      title: "My Fourth Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!"
-    }
-  ])
+  const [postTitle , setpostTitle] = useState();
+  const [postBody , setpostBody] = useState();
+ 
+  
+  
 
+   
+  const [post , setPost] = useState([]);
+
+  const handleDelete = (id) => {
+    const postList = post.filter((item)=>{return item.id !== id});
+    setPost(postList);
+    history("/");
+  }
+  
+  const handlesubmit = (e) => {
+    e.preventDefault();
+     
+    const id = post.length ? post[post.length - 1].id + 1 : 1  
+    const datetime = format(new Date(), "MMMM dd , yyyy pp");
+    // const newpost = {id , datetime , title : postTitle , body : postBody}
+    const allPost = [...post , {id , datetime , title : postTitle , body : postBody}]
+    console.log("das")
+    setPost(allPost);
+    setpostTitle("");
+    setpostBody("");
+    history("/");
+  }
+  
+ 
+
+
+  useEffect(()=>{
+    const result = (post.filter((item)=>{
+      return item.body.toLowerCase().includes((search.toLowerCase())) || 
+      item.title.toLowerCase().includes((search.toLowerCase())) 
+    }));
+    setSearchResults(result);
+    console.log("dsa")
+  },[search,post])
+   
   return (
     <div className="App">
       <Header title={"React Js Blog"}/>
       <Nav search={search} setSearch={setSearch}/>
      <Routes>
-      <Route path="/" element={<Home post={post}/>}/>
+      <Route path="/" element={<Home post={searchResults}/>}/>
       <Route path="/about" element={<About/>}/>
-      <Route path="/newpost" element={<Newpost/>}/>
-      <Route path="/post/:id" element={<Postpage post={post}/>}/>
+      <Route path="/newpost" element={<Newpost handlesubmit={handlesubmit} setpostTitle={setpostTitle} setpostBody={setpostBody} postTitle={postTitle} postBody={postBody}/>}/>
+      <Route path="/post/:id" element={<Postpage post={post} handleDelete={handleDelete}/>}/>
       <Route path="*" element={<Missing/>}/>
      </Routes>
      <Footer/>
