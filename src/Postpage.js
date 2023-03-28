@@ -11,10 +11,12 @@ const Postpage = ({ post , handleDelete}) => {
       <article className='post'>
         {post && <>
           <h2>{data?.title || "Not Found"} </h2>
-          <p className='postDate'>{data?.datatime || "없음"}</p>
+          <p className='postDate'>{data?.datetime || "없음"}</p>
           <p className='postBody'>{data?.body || "없음"}</p>
           {data === undefined ? <p><Link to="/">Back to Home</Link></p> : ""}
-          {data?.datatime && <button onClick={e=>handleDelete(data.id)}>Delete post</button>}
+          {<Link to={`/edit/${data?.id}`}><button className='editButton'>수정</button></Link>}
+          { <button onClick={e=>handleDelete(data?.id)}>Delete post</button>}
+         
         </> 
         }
       
